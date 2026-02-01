@@ -47,8 +47,5 @@ The program utilizes **Java NIO (New I/O)** for non-blocking file handling and *
 * **Libraries:** `java.nio.file`, `java.util.stream`, `javax.swing`
 * **Pattern:** Logic separated into modular methods for clean code.
 
-## 📝 License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ---
 *Created by [Aryan Solanki]*
