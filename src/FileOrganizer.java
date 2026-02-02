@@ -2,12 +2,21 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
 public class FileOrganizer {
+
+    private static final List<String> IMAGES = Arrays.asList(".jpg", ".jpeg", ".png", ".gif", ".bmp", ".svg", ".webp");
+    private static final List<String> DOCUMENTS = Arrays.asList(".pdf", ".doc", ".docx", ".txt", ".xls", ".xlsx", ".ppt", ".pptx", ".csv", ".rtf");
+    private static final List<String> ARCHIVES = Arrays.asList(".zip", ".rar", ".7z", ".tar", ".gz", ".iso");
+    private static final List<String> EXECUTABLES = Arrays.asList(".exe", ".msi", ".bat", ".sh");
+    private static final List<String> DESIGN_3D = Arrays.asList(".blend", ".obj", ".fbx", ".stl", ".psd", ".ai");
+    private static final List<String> MEDIA = Arrays.asList(".mp4", ".mkv", ".avi", ".mov", ".mp3", ".wav", ".flac");
+    private static final List<String> CODE = Arrays.asList(".java", ".py", ".js", ".html", ".css", ".cpp", ".c", ".json", ".xml");
 
     private static Path getDest(Path targetFolder, String fileName) {
         Path destination = targetFolder.resolve(fileName);
@@ -45,28 +54,18 @@ public class FileOrganizer {
         }
 
 
-        Path pdfFolder = Paths.get(drawerPath.toString(),"PDF");
-        Path imagesFolder = Paths.get(drawerPath.toString(),"Images");
-        Path documentsFolder = Paths.get(drawerPath.toString(),"Documents");
-        Path executableFolder = Paths.get(drawerPath.toString(),"ExecutableFiles");
-        Path zipFolder = Paths.get(drawerPath.toString(),"ZipFiles");
+        Path pdfFolder = drawerPath.resolve("Documents");
+        Path imagesFolder = drawerPath.resolve("Images");
+        Path zipFolder = drawerPath.resolve("Archives");
+        Path exeFolder = drawerPath.resolve("Programs");
+        Path designFolder = drawerPath.resolve("Design_3D");
+        Path mediaFolder = drawerPath.resolve("Media");
+        Path codeFolder = drawerPath.resolve("Code_Dev");
 
-        if(! Files.exists(pdfFolder)){
-            Files.createDirectory(pdfFolder);
+        List<Path> allFolders = Arrays.asList(pdfFolder, imagesFolder, zipFolder, exeFolder, designFolder, mediaFolder, codeFolder);
+        for (Path folder : allFolders) {
+            if (!Files.exists(folder)) Files.createDirectory(folder);
         }
-        if(! Files.exists(imagesFolder)){
-            Files.createDirectory(imagesFolder);
-        }
-        if(! Files.exists(documentsFolder)){
-            Files.createDirectory(documentsFolder);
-        }
-        if(! Files.exists(executableFolder)){
-            Files.createDirectory(executableFolder);
-        }
-        if(! Files.exists(zipFolder)){
-            Files.createDirectory(zipFolder);
-        }
-
 
         try(Stream<Path> stream = Files.list(downloadsPath)){
             List<Path> myfiles = stream.collect(Collectors.toList());
@@ -76,34 +75,40 @@ public class FileOrganizer {
                     int index = fileName.lastIndexOf(".");
                     String extension="";
                     if(index>0){
-                        extension = fileName.substring(index);
+                        extension = fileName.substring(index).toLowerCase();
                     }
                     try{
-                        if(extension.equalsIgnoreCase(".pdf") && Files.exists(pdfFolder)){
-                            Path destination = getDest(pdfFolder, fileName);
-                            Files.move(filePaths,destination);
+                        Path target = null;
+
+                        if (IMAGES.contains(extension)) {
+                            target = imagesFolder;
+                        } else if (DOCUMENTS.contains(extension)) {
+                            target = pdfFolder;
+                        } else if (ARCHIVES.contains(extension)) {
+                            target = zipFolder;
+                        } else if (EXECUTABLES.contains(extension)) {
+                            target = exeFolder;
+                        } else if (DESIGN_3D.contains(extension)) {
+                            target = designFolder;
+                        } else if (MEDIA.contains(extension)) {
+                            target = mediaFolder;
+                        } else if (CODE.contains(extension)) {
+                            target = codeFolder;
                         }
-                        if((extension.equalsIgnoreCase(".jpg") || extension.equalsIgnoreCase(".jpeg") || extension.equalsIgnoreCase(".png")) && Files.exists(imagesFolder)){
-                            Path destination = getDest(imagesFolder, fileName);
-                            Files.move(filePaths,destination);
+
+                        if (target != null && Files.exists(target)) {
+                            Path destination = getDest(target, fileName);
+                            Files.move(filePaths, destination);
+                            System.out.println("Moved: " + fileName + " -> " + target.getFileName());
                         }
-                        if((extension.equalsIgnoreCase(".doc")  || extension.equalsIgnoreCase(".docx")|| extension.equalsIgnoreCase(".txt") || extension.equalsIgnoreCase(".xls") || extension.equalsIgnoreCase(".xlsx") || extension.equalsIgnoreCase(".ppt") || extension.equalsIgnoreCase(".pptx")) && Files.exists(documentsFolder)){
-                            Path destination = getDest(documentsFolder, fileName);
-                            Files.move(filePaths,destination);
-                        }
-                        if(extension.equalsIgnoreCase(".exe") && Files.exists(executableFolder)){
-                            Path destination = getDest(executableFolder, fileName);
-                            Files.move(filePaths,destination);
-                        }if((extension.equalsIgnoreCase(".zip") || extension.equalsIgnoreCase(".rar"))  && Files.exists(zipFolder)){
-                            Path destination = getDest(zipFolder, fileName);
-                            Files.move(filePaths,destination);
-                        }
+
                     }
                     catch (Exception e){
                         System.out.println("error in moving files");
                     }
                 }
             }
+            javax.swing.JOptionPane.showMessageDialog(null, "Organization Complete!");
         }
         catch (IOException e){
             System.out.println("error in reading files");
