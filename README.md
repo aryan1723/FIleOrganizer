@@ -29,7 +29,7 @@ The program utilizes **Java NIO (New I/O)** for non-blocking file handling and *
 ## 💻 Usage
 
 ### Option 1: Run the Executable (Easy)
-1.  Download the latest `FileOrganizer.jar` from the [Releases](link-to-your-releases) tab.
+1.  Download the latest `FileOrganizer.jar` from the [Releases](https://github.com/aryan1723/FIleOrganizer/tree/main/Releases) tab.
 2.  Double-click the file (or run via command line).
 3.  A popup will confirm when the sorting is complete.
 
